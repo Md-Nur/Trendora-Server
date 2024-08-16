@@ -35,17 +35,23 @@ const getAllProducts = async (req, res) => {
   ];
   try {
     const allProducts = await Product.aggregate(pipeline);
-    totalPages = Math.ceil(allProducts.length / 6);
+    const totalPages = Math.ceil(allProducts.length / 6);
     const pageList = Array.from({ length: totalPages }, (_, i) => i + 1);
-    const products = Product.aggregate([
-      ...pipeline,
-      { $skip: (page - 1) * 6 },
-      { $limit: 6 },
-    ]);
-    const uniqueCategories = await Product.distinct("category");
-    const uniqueBrands = await Product.distinct("brandName");
+    // const products = Product.aggregate([
+    //   ...pipeline,
+    //   { $skip: (page - 1) * 6 },
+    //   { $limit: 6 },
+    // ]);
 
-    res.json({ pageList, uniqueCategories, uniqueBrands, products });
+    let products = [];
+
+    for (let i = (page - 1) * 6; i < page * 6; i++) {
+      if (allProducts[i]) {
+        products.push(allProducts[i]);
+      }
+    }
+
+    res.json({ pageList, products });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: error.message || "Server Error" });
@@ -53,9 +59,9 @@ const getAllProducts = async (req, res) => {
 };
 
 const productsQuery = asyncHandler(async (req, res) => {
-  const totalProducts = await Product.countDocuments();
-  const totalPages = Math.ceil(totalProducts / 6);
-  const pageList = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const uniqueCategories = await Product.distinct("category");
+  const uniqueBrands = await Product.distinct("brandName");
+  res.json({ uniqueCategories, uniqueBrands });
 });
 
 const insertProduct = asyncHandler(async (req, res) => {
