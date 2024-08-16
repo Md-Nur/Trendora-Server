@@ -10,10 +10,8 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(express.json({ limit: "30mb", extended: true }));
 
-app.get("/", (req, res) => {
-  res.send("API is running....");
-});
 app.use("/products", productRouter);
 export default app;
