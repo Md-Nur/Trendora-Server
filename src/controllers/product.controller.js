@@ -8,11 +8,14 @@ const getAllProducts = async (req, res) => {
   const category = req.query.category || "";
   const brandName = req.query.brandName || "";
   const priceRange = req.query.priceRange || null;
+  const priceSort = parseInt(req.query.priceSort || "1");
+  const timeSort = parseInt(req.query.timeSort || "-1");
+  // console.log(req.query);
 
   const pipeline = [
     {
       $sort: {
-        _id: -1,
+        _id: timeSort,
       },
     },
     {
@@ -23,12 +26,17 @@ const getAllProducts = async (req, res) => {
           priceRange
             ? {
                 price: {
-                  $gte: parseInt(priceRange.split("-")[0]),
-                  $lte: parseInt(priceRange.split("-")[1]),
+                  $gte: Number(priceRange.split("-")[0]),
+                  $lte: Number(priceRange.split("-")[1]),
                 },
               }
             : {},
         ],
+      },
+    },
+    {
+      $sort: {
+        price: priceSort,
       },
     },
   ];
