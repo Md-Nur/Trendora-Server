@@ -18,7 +18,6 @@ const getAllProducts = async (req, res) => {
     {
       $match: {
         $and: [
-          { name: { $regex: search, $options: "i" } },
           { category: { $regex: category, $options: "i" } },
           { brandName: { $regex: brandName, $options: "i" } },
           priceRange
@@ -33,6 +32,13 @@ const getAllProducts = async (req, res) => {
       },
     },
   ];
+  if (search && !category && !brandName && !priceRange) {
+    pipeline.push({
+      $match: {
+        name: { $regex: search, $options: "i" },
+      },
+    });
+  }
   try {
     const allProducts = await Product.aggregate(pipeline);
     const totalPages = Math.ceil(allProducts.length / 6);
@@ -61,7 +67,16 @@ const getAllProducts = async (req, res) => {
 const productsQuery = asyncHandler(async (req, res) => {
   const uniqueCategories = await Product.distinct("category");
   const uniqueBrands = await Product.distinct("brandName");
-  res.json({ uniqueCategories, uniqueBrands });
+  const priceRange = await Product.aggregate([
+    {
+      $group: {
+        _id: null,
+        maxPrice: { $max: "$price" },
+        minPrice: { $min: "$price" },
+      },
+    },
+  ]);
+  res.json({ uniqueCategories, uniqueBrands, priceRange: priceRange[0] });
 });
 
 const insertProduct = asyncHandler(async (req, res) => {
