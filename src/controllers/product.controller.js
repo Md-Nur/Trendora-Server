@@ -40,7 +40,7 @@ const getAllProducts = async (req, res) => {
       },
     },
   ];
-  if (search && !category && !brandName && !priceRange) {
+  if (search) {
     pipeline.push({
       $match: {
         name: { $regex: search, $options: "i" },
