@@ -29,15 +29,8 @@ Make sure you have the following installed on your machine:
 4. **Start the server:**
 
    ```bash
-   npm start
+   npm run dev
    ```
 
    The server should now be running at [http://localhost:8000](http://localhost:8000).
 
-## Development
-
-To run the server in development mode (with hot reloading), use:
-
-```bash
-npm run dev
-```
